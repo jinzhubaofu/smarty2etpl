@@ -1,0 +1,22 @@
+{
+  "name": "smarty2etpl",
+  "version": "0.0.1",
+  "description": "transfer smarty to etpl",
+  "main": "lib/index.js",
+  "bin": "bin/smarty2etpl",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "author": "leon",
+  "license": "BSD-2-Clause",
+  "devDependencies": {
+    "jison": "~0.4.13",
+    "es6-module-packager": "~0.3.0",
+    "grunt-contrib-copy": "~0.5.0",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-watch": "~0.5.3"
+  },
+  "dependencies": {
+    "optimist": "~0.6.0"
+  }
+}

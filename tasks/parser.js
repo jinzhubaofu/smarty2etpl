@@ -25,16 +25,12 @@ module.exports = function(grunt) {
         return;
       }
 
-      var src = [
-        'src/parser-prefix.js', 
-        'smarty.js', 
-        'src/parser-suffix.js'
-      ].map(grunt.file.read).join('');
+      var src = grunt.file.read('smarty.js');
 
       grunt.file.delete('smarty.js');
 
       grunt.file.write('lib/parser.js', src);
-      grunt.log.writeln('Parser "lib/parser.js" created.');
+      grunt.log.writeln('parser "lib/parser.js" created.');
       done();
     });
   });

@@ -1,5 +1,37 @@
 #!/usr/bin/env node
 
+var fs = require('fs');
+var path = require('path');
 var argv = require('optimist').argv;
+var cwd = process.cwd();
+var SmartyCompiler = require('../lib/SmartyCompiler');
 
-console.log(argv);
+var output = '';
+
+function processTemplate(template) {
+
+    var path = template;
+    var stat = fs.statSync(path);
+
+    if (stat.isDirectory()) {        
+        fs.readdirSync(template).map(function(file) {
+            processTemplate(template + '/' + file);
+        });
+    }
+    else {
+        var data = fs.readFileSync(path, 'utf8');
+        output += SmartyCompiler.precompile(data);
+    }
+
+}
+
+argv._.map(function (template) {
+    processTemplate(path.resolve(cwd, template));
+});
+
+if (argv.o) {
+  fs.writeFileSync(path.resolve(cwd, argv.o), output, 'utf8');
+}
+else {
+  console.log("output:" + output);
+}

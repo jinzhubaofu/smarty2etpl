@@ -1,58 +1,87 @@
-%x s
+%x s cmd
 
-%{
+L "{"
+R "}"
 
-function strip(start, end) {
-  return yytext.substr(start, yyleng-end);
-}
+LH [}\s]
 
-%}
+CMD       "if"|"foreach"/{LH}
+ELSEIF    "elseif"/{LH}
+ELSE      "else"/{LH}
 
-LOOKAHEAD             [=~}\s\/.]
-LITERAL_LOOKAHEAD     [~}\s]
-
-ID                    [^\s!"#%-,\.\/;->@\[-\^`\{-~]+/{LOOKAHEAD} /*"*/
-INTEGER               \-?[0-9]+(\.[0-9]+)?/{LITERAL_LOOKAHEAD}
-BOOLEAN               ture|false/{LITERAL_LOOKAHEAD}
-STRING                ("(\\"|[^"])*")|('(\\'|[^'])*')/{LITERAL_LOOKAHEAD}
-OPERATOR              <=|>=|===|==|!=|!|<|>|\+|\-|\%|\/|%|&|\^|\|and|or|not
 %%
 
-[^\x00]*?/"{"               {
-                              this.begin("s");
-                              if (yytext) {
-                                return "CONTENT";
-                              }
-                            }
-[^\x00]+                    return "CONTENT";
-<s>"{"\s*"/"                return "OPEN_COMMAND_CLOSE";
-<s>"{"\s*"else"             return "OPEN_COMMAND_INVERSE";
-<s>"{"                      return "OPEN_COMMAND";
-<s>"}"                      {
-                              this.popState();
-                              return "CLOSE_COMMAND";
-                            }
-<s>[\s]+                    // eat
-<s>[\.]                     return "SEP";
-<s>"@"                      return "CURSOR";
-<s>"$"{ID}                  {
-                              yytext = strip(1,1);
-                              return "ID";
-                            }
-<s>{ID}                     return "ID";
-<s>'['[^\]]*']'             {
-                              yytext = strip(1,2);
-                              return "ID";
-                            }
-<s>{BOOLEAN}                return "BOOLEAN";
-<s>{INTEGER}                return "INTEGER";
-<s>{OPERATOR}               return "OPERATOR";
-<s>'"'("\\"["]|[^"])*'"'    {
-                              yytext = strip(1,2).replace(/\\"/g,'"');
-                              return "STRING";
-                            }
-<s>"'"("\\"[']|[^'])*"'"    {
-                              yytext = strip(1,2).replace(/\\'/g,"'"); 
-                              return "STRING";
-                            }
-<INITIAL,s><<EOF>>          return "EOF";
+[^\x00]*?/{L} {
+  this.begin("s");
+  if (yytext) {
+    return "CONTENT";
+  }
+}
+
+[^\x00]+ {
+  return "CONTENT";
+}
+
+<s>{CMD} {
+  console.log("CMD|%s", yytext);
+  this.begin("cmd");
+  return "CMD";
+}
+
+<cmd>\s+ {
+  // eat...
+}
+
+<cmd>[^}\s]+ {
+  console.log("CMD|PARAMS|%s", yytext);
+  return "PARAM";
+}
+
+<cmd>"}" {
+  this.popState();
+  this.popState();
+  return "CLOSE";
+}
+
+<s>"/"{CMD} {
+  console.log('CLOSE_CMD|%s\n',yytext);
+  yytext = yytext.slice(1);
+  return "CLOSE_CMD";
+}
+
+<s>{L}\s*{ELSEIF} {
+  console.log("ELSEIF"); 
+  yytext = "elseif";
+  this.begin("cmd");
+  return "ELSEIF";
+}
+
+<s>{L}\s*{ELSE} {
+  console.log("ELSE");
+  yytext = "else";
+  return "ELSE";
+}
+
+<s>{L}"/" {
+  console.log('CLOSE_CMD');
+  return "OPEN_BLOCK_END";
+}
+
+<s>{L} {
+  console.log("OPEN");
+  return "OPEN";
+}
+
+<s>{R} {
+  console.log('CLOSE');
+  this.popState();
+  return "CLOSE";
+}
+
+<s>[\s] {
+  // eat
+}
+
+<INITIAL,s><<EOF>> {
+  return "EOF";
+}

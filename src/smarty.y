@@ -1,21 +1,20 @@
 %start root
-
 %ebnf
 
 %%
-
 root
-    : stmts EOF             { return new yy.ProgramNode($1); }
-    | EOF                   { return new yy.ProgramNode(null); }
-    ;
+  : stmts EOF { return new yy.ProgramNode($1); }
+  | EOF       { return new yy.ProgramNode([]); }
+  ;
 
-// 以program解析各类command中的语句块
 program
-  : OPEN_COMMAND_INVERSE CLOSE_COMMAND stmts -> new yy.ProgramNode(null, $2)
-  | stmts OPEN_COMMAND_INVERSE CLOSE_COMMAND stmts -> new yy.ProgramNode($1, $3)
-  | stmts OPEN_COMMAND_INVERSE CLOSE_COMMAND -> new yy.ProgramNode($1)
-  | stmts -> new yy.ProgramNode($1, null)
-  | OPEN_COMMAND_INVERSE CLOSE_COMMAND -> new yy.ProgramNode()
+  : stmts elseif* else? {
+    var inverse = 
+    $$ = new yy.ProgramNode(
+      $1, 
+      $2.length ? yy.buildBlockInverse($2, $3) : ($3 || [])
+    );
+  }
   ;
 
 stmts
@@ -25,39 +24,21 @@ stmts
 
 stmt
   : CONTENT -> new yy.TextNode($1)
-  | openCommand program closeCommand -> new yy.BlockNode($1, $3, $2, $2.inverse)
+  | openBlock program closeBlock -> new yy.BlockNode($1, $3, $2, $2.inverse)
   ;
 
-openCommand
-  : OPEN_COMMAND command CLOSE_COMMAND -> new yy.CommandNode($2, "OPEN")
+openBlock
+  : OPEN CMD PARAM* CLOSE -> new yy.CommandNode($2, $3)
   ;
 
-closeCommand
-  : OPEN_COMMAND_CLOSE command CLOSE_COMMAND -> new yy.CommandNode($2, "CLOSE")
+closeBlock
+  : OPEN_BLOCK_END CMD CLOSE -> $2
   ;
 
-command
-  : path param* -> [[$1].concat($2), $3]
-  | dataName -> [[$1], null]
+elseif
+  : ELSEIF PARAM* CLOSE stmts? -> {command:'elseif', params: $2, statements: $4}
   ;
 
-path
-  : pathSegments -> new yy.IdNode($1)
-  ;
-
-pathSegments
-  : pathSegments SEP ID { $1.push({part: $3, separator: $2}); $$ = $1; }
-  | ID -> [{part: $1}]
-  ;
-
-param
-  : path -> $1
-  | STRING -> new yy.StringNode($1)
-  | INTEGER -> new yy.IntegerNode($1)
-  | BOOLEAN -> new yy.BooleanNode($1)
-  | dataName -> $1
-  ;
-
-dataName
-  : CURSOR path -> new yy.DataNode($2)
+else
+  : ELSE CLOSE stmts? -> $3
   ;

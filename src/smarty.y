@@ -9,7 +9,6 @@ root
 
 program
   : stmts elseif* else? {
-    var inverse = 
     $$ = new yy.ProgramNode(
       $1, 
       $2.length ? yy.buildBlockInverse($2, $3) : ($3 || [])
@@ -28,7 +27,7 @@ stmt
   ;
 
 openBlock
-  : OPEN CMD PARAM* CLOSE -> new yy.CommandNode($2, $3)
+  : OPEN CMD param* CLOSE -> new yy.CommandNode($2, $3)
   ;
 
 closeBlock
@@ -36,9 +35,30 @@ closeBlock
   ;
 
 elseif
-  : ELSEIF PARAM* CLOSE stmts? -> {command:'elseif', params: $2, statements: $4}
+  : ELSEIF param* CLOSE stmts? -> {command:'elseif', params: $2, statements: $4}
   ;
 
 else
   : ELSE CLOSE stmts? -> $3
+  ;
+
+param
+  : STRING -> new yy.TextNode($1)
+  | INTEGER -> new yy.TextNode($1)
+  | BOOLEAN -> new yy.TextNode($1)
+  | dataName -> $1
+  | OPERATOR -> new yy.TextNode($1)
+  ;
+
+dataName
+  : DATA path -> new yy.IdNode($2)
+  ;
+
+path
+  : pathSegments -> $1
+  ;
+
+pathSegments
+  : pathSegments SEP ID -> $1.concat($3)
+  | ID -> [$1]
   ;

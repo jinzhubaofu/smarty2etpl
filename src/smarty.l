@@ -1,24 +1,29 @@
-%x s cmd
+%x s cmd id
 
 L "{"
 R "}"
 
-LH [}\s]
+LH [=}\s\/.]
 
 CMD       "if"|"foreach"/{LH}
+BOOLEAN   "false"|"true"/{LH}
 ELSEIF    "elseif"/{LH}
 ELSE      "else"/{LH}
-
+ID        [a-zA-Z][a-zA-Z0-9]*/{LH}
+INTEGER   \-?[0-9]+/{LH}
+OPERATOR  "=>"|"==="|"=="|"="|"as"/{LH}
 %%
 
 [^\x00]*?/{L} {
   this.begin("s");
   if (yytext) {
+    console.log("CONTENT:%s", yytext);
     return "CONTENT";
   }
 }
 
 [^\x00]+ {
+  console.log("CONTENT:%s", yytext);
   return "CONTENT";
 }
 
@@ -28,13 +33,48 @@ ELSE      "else"/{LH}
   return "CMD";
 }
 
-<cmd>\s+ {
-  // eat...
+<cmd>{OPERATOR} {
+  return "OPERATOR";
 }
 
-<cmd>[^}\s]+ {
-  console.log("CMD|PARAMS|%s", yytext);
-  return "PARAM";
+<cmd>{ID} {
+  return "ID";
+}
+
+<cmd>'"'("\\"["]|[^"])*'"' {
+  console.log("CMD|STRING|%s", yytext);
+  return "STRING";
+}
+
+<cmd>"'"("\\"[']|[^'])*"'" {
+  console.log("CMD|STRING|%s", yytext);
+  return "STRING";
+}
+
+<cmd>{BOOLEAN} {
+  return "BOOLEAN";
+}
+
+<cmd>"$" {
+  console.log("IN_CMD|$");
+  return "DATA";
+}
+
+<cmd>"." {
+  console.log("IN_CMD|.");
+  return "SEP";
+}
+
+<cmd>"@" {
+  return "CURSOR";
+}
+
+<cmd>{INTEGER} {
+  return "INTEGER";
+}
+
+<cmd>\s+ {
+  // eat
 }
 
 <cmd>"}" {

@@ -2,6 +2,7 @@ var childProcess = require('child_process');
 
 module.exports = function(grunt) {
   grunt.registerTask('parser', 'Generate jison parser.', function() {
+
     var done = this.async();
 
     var cmd = './node_modules/.bin/jison';

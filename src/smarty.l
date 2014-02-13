@@ -3,15 +3,15 @@
 L "{"
 R "}"
 
-LH [=}\s\/.]
+LH [=}\s\/.)(:\|]
 
-CMD       "if"|"foreach"/{LH}
+CMD       "if"|"foreach"|"function"|"block"/{LH}
 BOOLEAN   "false"|"true"/{LH}
 ELSEIF    "elseif"/{LH}
 ELSE      "else"/{LH}
-ID        [a-zA-Z][a-zA-Z0-9]*/{LH}
+ID        [_a-zA-Z][_a-zA-Z0-9]*/{LH}
 INTEGER   \-?[0-9]+/{LH}
-OPERATOR  "=>"|"==="|"=="|"="|"as"/{LH}
+OPERATOR  "=>"|"==="|"=="|"as"/{LH}
 %%
 
 [^\x00]*?/{L} {
@@ -27,17 +27,43 @@ OPERATOR  "=>"|"==="|"=="|"="|"as"/{LH}
   return "CONTENT";
 }
 
-<s>{CMD} {
-  console.log("CMD|%s", yytext);
+<s>{L}\s*{ELSEIF} {
+  yytext = "elseif";
   this.begin("cmd");
+  return "ELSEIF";
+}
+
+<s>{L}\s*{ELSE}\s*{R} {
+  console.log("ELSE");
+  yytext = "else";
+  return "ELSE";
+}
+
+<s>{L}"/" {
+  console.log('OPEN_BLOCK_END');
+  this.begin("cmd");
+  return "OPEN_BLOCK_END";
+}
+
+
+<s>{L} {
+  console.log("S|OPEN");
+  this.begin("cmd");
+  return "OPEN";
+}
+
+<cmd>{CMD} {
+  console.log("CMD|COMMAND|%s", yytext);
   return "CMD";
 }
 
 <cmd>{OPERATOR} {
+  console.log("CMD|OPERATOR|%s", yytext);
   return "OPERATOR";
 }
 
 <cmd>{ID} {
+  console.log("CMD|ID|%s", yytext);
   return "ID";
 }
 
@@ -52,24 +78,50 @@ OPERATOR  "=>"|"==="|"=="|"="|"as"/{LH}
 }
 
 <cmd>{BOOLEAN} {
+  console.log("CMD|BOOLEAN:%s", yytext);
   return "BOOLEAN";
 }
 
 <cmd>"$" {
-  console.log("IN_CMD|$");
+  console.log("CMD|DATA");
   return "DATA";
 }
 
 <cmd>"." {
-  console.log("IN_CMD|.");
+  console.log("CMD|SEP");
   return "SEP";
+}
+
+<cmd>"=" {
+  console.log("CMD|OPERATOR");
+  return "EQUAL";
 }
 
 <cmd>"@" {
   return "CURSOR";
 }
 
+<cmd>"|" {
+  console.log("CMD|MODIFIER");
+  return "MODIFIER";
+}
+
+<cmd>":" {
+  return "MODIFIER_PARAM";
+}
+
+<cmd>"(" {
+  console.log("CMD|FUNCTION_OPEN");
+  return "FUNCTION_OPEN";
+}
+
+<cmd>")" {
+  console.log("CMD|FUNCTION_CLOSE");
+  return "FUNCTION_CLOSE";
+}
+
 <cmd>{INTEGER} {
+  console.log("CMD|INTEGER:%s", yytext);
   return "INTEGER";
 }
 
@@ -77,44 +129,10 @@ OPERATOR  "=>"|"==="|"=="|"="|"as"/{LH}
   // eat
 }
 
-<cmd>"}" {
+<cmd>{R} {
   this.popState();
   this.popState();
-  return "CLOSE";
-}
-
-<s>"/"{CMD} {
-  console.log('CLOSE_CMD|%s\n',yytext);
-  yytext = yytext.slice(1);
-  return "CLOSE_CMD";
-}
-
-<s>{L}\s*{ELSEIF} {
-  console.log("ELSEIF"); 
-  yytext = "elseif";
-  this.begin("cmd");
-  return "ELSEIF";
-}
-
-<s>{L}\s*{ELSE} {
-  console.log("ELSE");
-  yytext = "else";
-  return "ELSE";
-}
-
-<s>{L}"/" {
-  console.log('CLOSE_CMD');
-  return "OPEN_BLOCK_END";
-}
-
-<s>{L} {
-  console.log("OPEN");
-  return "OPEN";
-}
-
-<s>{R} {
-  console.log('CLOSE');
-  this.popState();
+  console.log("CMD|CLOSE");
   return "CLOSE";
 }
 

@@ -1,0 +1,8 @@
+this is a parser test case;
+{if $a==' '}
+  {foreach $loop as $index => $item}loop{/foreach}
+{elseif $b == 2}
+  hahaha
+{else}
+  fail
+{/if}

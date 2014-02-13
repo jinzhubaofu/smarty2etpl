@@ -1,7 +1,0 @@
-this is a parser test case;
-{if}
-    {foreach}loop{/foreach}
-{else}
-    fail
-{/if}
-asdfasdf

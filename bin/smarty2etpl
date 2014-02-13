@@ -4,7 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var argv = require('optimist').argv;
 var cwd = process.cwd();
-var SmartyCompiler = require('../lib/SmartyCompiler');
+var Compiler = require('../lib/Compiler');
 
 var output = '';
 
@@ -20,7 +20,7 @@ function processTemplate(template) {
     }
     else {
         var data = fs.readFileSync(path, 'utf8');
-        output += SmartyCompiler.precompile(data);
+        output += Compiler.precompile(data);
     }
 
 }

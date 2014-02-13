@@ -14,6 +14,7 @@ program
       $2.length ? yy.buildBlockInverse($2, $3) : ($3 || [])
     );
   }
+  | "" -> new yy.ProgramNode([]);
   ;
 
 stmts
@@ -22,12 +23,19 @@ stmts
   ;
 
 stmt
-  : CONTENT -> new yy.TextNode($1)
+  : CONTENT -> new yy.ConstantNode($1)
   | openBlock program closeBlock -> new yy.BlockNode($1, $3, $2, $2.inverse)
+  | OPEN chainable CLOSE -> new yy.DataNode($2)
+  | OPEN ID property* CLOSE -> new yy.InlineNode($2, $3)
   ;
 
 openBlock
-  : OPEN CMD param* CLOSE -> new yy.CommandNode($2, $3)
+  : OPEN CMD commandParam* CLOSE -> new yy.CommandNode($2, $3)
+  ;
+
+commandParam
+  : param -> $1
+  | property -> $1
   ;
 
 closeBlock
@@ -35,23 +43,49 @@ closeBlock
   ;
 
 elseif
-  : ELSEIF param* CLOSE stmts? -> {command:'elseif', params: $2, statements: $4}
+  : ELSEIF commandParam* CLOSE stmts? -> {command:'elseif', params: $2, statements: $4}
   ;
 
 else
-  : ELSE CLOSE stmts? -> $3
+  : ELSE stmts? -> $2
+  ;
+
+property
+  : ID EQUAL param -> new yy.PropertyNode($1, $3)
   ;
 
 param
-  : STRING -> new yy.TextNode($1)
-  | INTEGER -> new yy.TextNode($1)
-  | BOOLEAN -> new yy.TextNode($1)
-  | dataName -> $1
-  | OPERATOR -> new yy.TextNode($1)
+  : constant -> $1
+  | chainable -> $1
   ;
 
-dataName
-  : DATA path -> new yy.IdNode($2)
+constant
+  : STRING -> new yy.ConstantNode($1)
+  | INTEGER -> new yy.ConstantNode($1)
+  | BOOLEAN -> new yy.ConstantNode($1)
+  | OPERATOR -> new yy.ConstantNode($1)
+  ;
+
+chainable
+  : variable modifier* -> new yy.ChainableNode($1, $2)
+  | function modifier* -> new yy.ChainableNode($1, $2)
+  ;
+
+function
+  : ID FUNCTION_OPEN param* FUNCTION_CLOSE -> new yy.PhpFunctionNode($1, $3)
+  ;
+
+variable
+  : DATA path -> new yy.VariableNode($2)
+  ;
+
+modifier
+  : MODIFIER ID modifier_params? -> new yy.ModifierNode($2, $3)
+  ;
+
+modifier_params
+  : MODIFIER_PARAM constant -> [$2]
+  | modifier_params MODIFIER_PARAM constant -> $1.concat($3)
   ;
 
 path

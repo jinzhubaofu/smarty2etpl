@@ -1,5 +1,4 @@
 {
     "ldelim": "{%",
-    "rdelim": "%}",
-    "function_base": "jQuery"
+    "rdelim": "%}"
 }

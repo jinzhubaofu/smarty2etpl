@@ -11,24 +11,18 @@
   "license": "BSD-2-Clause",
   "devDependencies": {
     "jison": "~0.4.13",
-    "es6-module-packager": "~0.3.0",
-    "grunt-contrib-copy": "~0.5.0",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-watch": "~0.5.3",
-    "etpl": "~2.0.8",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-requirejs": "~0.4.1",
-    "grunt-contrib-uglify": "~0.2.7",
-    "grunt-contrib-jshint": "~0.8.0",
-    "grunt-saucelabs": "~4.1.2",
-    "grunt-contrib-connect": "~0.6.0",
     "grunt-wrap": "~0.3.0",
-    "gulp-util": "~2.2.14",
-    "gulp": "~3.5.2"
+    "grunt-text-replace": "~0.3.11"
   },
   "dependencies": {
     "optimist": "~0.6.0",
-    "gulp-concat": "~2.1.7",
-    "colors": "~0.6.2"
+    "colors": "~0.6.2",
+    "underscore": "~1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jinzhubaofu/smarty2etpl.git"
   }
 }

@@ -17,15 +17,15 @@ or for use in nodejs
 
 ### use in a command line:
 
-    smarty2etpl some-template.tpl
+  smarty2etpl some-template.tpl
 
 ### use in nodejs api
 
-    var smarty2etpl = require('smarty2etpl');
+  var smarty2etpl = require('smarty2etpl');
 
-    var etpl = smarty2etpl.compile('hello, {%$name%}');
+  var etpl = smarty2etpl.compile('hello, {%$name%}');
 
-    console.log(etpl);
+  console.log(etpl);
 
 ### config smarty2etpl
 
@@ -63,39 +63,39 @@ these features are `not supported`:
 
 + if parameter value is a string, the '' or "" cannot be bypassed:
 
-	this is ok:
+this is ok:
 
-	  {%funciton name='menu'%} ... {%/function%}
-	  {%$data|escape:'html'%}
+  {%funciton name='menu'%} ... {%/function%}
+  {%$data|escape:'html'%}
 
-	this will cause pasre error:
+this will cause pasre error:
 
-	  {%funciton name=menu%} ... {%/function%}
-	  {%$data|escape:html%}
+  {%funciton name=menu%} ... {%/function%}
+  {%$data|escape:html%}
 
 + foreach
 
-	only support smarty2 syntax 
+only support smarty2 syntax
 		
-		foreach from=$data item=$item key=$key"
+	{%foreach from=$data item=$item key=$key"%}
 		
-	`@index` `@first` `@last` etc. this feature cannot go with etpl for now;
+`@index` `@first` `@last` etc. this feature cannot go with etpl for now;
 	
-	There maybe is a trick way, and we may support this in future;
+There maybe is a trick way, and we may support this in future;
 		
 + all kinds short-hand. Only key=value parameters supported
 
-	this is ok:
+this is ok:
 
-	  {%function name='menu' level=0%} ... {%/block%} 
+  {%function name='menu' level=0%} ... {%/block%} 
 
-	these will cause parse error:
+these will cause parse error:
 
-	  {%block menu%} ... {%/block%}
+  {%block menu%} ... {%/block%}
 
 + function chainable such as:
 
-      {%json_encode($data)|escape:'javascipt'%}
+  {%json_encode($data)|escape:'javascipt'%}
  
 ## TODO
 

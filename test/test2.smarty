@@ -1,9 +1,0 @@
-{if $a == 1}aaa{/if}
-{$data|escape:'html'|escape:'url'|escape:'javascript'}
-{json_encode($data)}
-{function name='menu' level=0}aaaa{/function}
-{foreach $data as $index => $item}{/foreach}
-{assign var="name" value="Bob"}
-
-{extends file='parent.tpl'}
-{block name="test"}{/block}

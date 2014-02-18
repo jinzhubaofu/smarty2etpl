@@ -4,7 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var argv = require('optimist').argv;
 var cwd = process.cwd();
-var Compiler = require('../lib/Compiler');
+var smarty2etpl = require('../lib/index');
 
 var output = '';
 
@@ -20,7 +20,7 @@ function processTemplate(template) {
     }
     else {
         var data = fs.readFileSync(path, 'utf8');
-        output += Compiler.precompile(data);
+        output += smarty2etpl.compile(data);
     }
 
 }
@@ -33,5 +33,5 @@ if (argv.o) {
   fs.writeFileSync(path.resolve(cwd, argv.o), output, 'utf8');
 }
 else {
-  console.log("output:" + output);
+  console.log(output);
 }

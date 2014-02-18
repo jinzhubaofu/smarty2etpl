@@ -3,27 +3,26 @@
 L "{"
 R "}"
 
-LH [=}\s\/.)(:\|]
+LH [}=\s\/.)(:\|]
 
-CMD       "if"|"foreach"|"function"|"block"/{LH}
+CMD       "if"|"foreach"|"function"|"block"|"strip"/{LH}
 BOOLEAN   "false"|"true"/{LH}
 ELSEIF    "elseif"/{LH}
 ELSE      "else"/{LH}
-ID        [_a-zA-Z][_a-zA-Z0-9]*/{LH}
+ID        [_a-zA-Z][_a-zA-Z0-9]*
 INTEGER   \-?[0-9]+/{LH}
-OPERATOR  "=>"|"==="|"=="|"as"/{LH}
 %%
 
 [^\x00]*?/{L} {
   this.begin("s");
   if (yytext) {
-    console.log("CONTENT:%s", yytext);
+    // console.log("CONTENT:%s", yytext);
     return "CONTENT";
   }
 }
 
 [^\x00]+ {
-  console.log("CONTENT:%s", yytext);
+  // console.log("CONTENT:%s", yytext);
   return "CONTENT";
 }
 
@@ -34,66 +33,77 @@ OPERATOR  "=>"|"==="|"=="|"as"/{LH}
 }
 
 <s>{L}\s*{ELSE}\s*{R} {
-  console.log("ELSE");
+  // console.log("ELSE");
   yytext = "else";
+  this.popState();
   return "ELSE";
 }
 
 <s>{L}"/" {
-  console.log('OPEN_BLOCK_END');
+  // console.log('OPEN_BLOCK_END');
   this.begin("cmd");
   return "OPEN_BLOCK_END";
 }
 
 
 <s>{L} {
-  console.log("S|OPEN");
+  // console.log("S|OPEN");
   this.begin("cmd");
   return "OPEN";
 }
 
 <cmd>{CMD} {
-  console.log("CMD|COMMAND|%s", yytext);
+  // console.log("CMD|COMMAND|%s", yytext);
   return "CMD";
 }
 
 <cmd>{OPERATOR} {
-  console.log("CMD|OPERATOR|%s", yytext);
+  // console.log("CMD|OPERATOR|%s", yytext);
   return "OPERATOR";
 }
 
 <cmd>{ID} {
-  console.log("CMD|ID|%s", yytext);
+  // console.log("CMD|ID|%s", yytext);
   return "ID";
 }
 
 <cmd>'"'("\\"["]|[^"])*'"' {
-  console.log("CMD|STRING|%s", yytext);
+  // console.log("CMD|STRING|%s", yytext);
   return "STRING";
 }
 
 <cmd>"'"("\\"[']|[^'])*"'" {
-  console.log("CMD|STRING|%s", yytext);
+  // console.log("CMD|STRING|%s", yytext);
   return "STRING";
 }
 
 <cmd>{BOOLEAN} {
-  console.log("CMD|BOOLEAN:%s", yytext);
+  // console.log("CMD|BOOLEAN:%s", yytext);
   return "BOOLEAN";
 }
 
+<cmd>{INTEGER} {
+  // console.log("CMD|INTEGER:%s", yytext);
+  return "INTEGER";
+}
+
 <cmd>"$" {
-  console.log("CMD|DATA");
+  // console.log("CMD|DATA");
   return "DATA";
 }
 
 <cmd>"." {
-  console.log("CMD|SEP");
+  // console.log("CMD|SEP");
   return "SEP";
 }
 
+<cmd>"&&"|"==="|"=="|"<="|"!="|">="|"<"|">"|"!" {
+  // console.log("CMD|%s", yytext);
+  return yytext;
+}
+
 <cmd>"=" {
-  console.log("CMD|OPERATOR");
+  // console.log("CMD|EQUAL");
   return "EQUAL";
 }
 
@@ -102,7 +112,7 @@ OPERATOR  "=>"|"==="|"=="|"as"/{LH}
 }
 
 <cmd>"|" {
-  console.log("CMD|MODIFIER");
+  // console.log("CMD|MODIFIER");
   return "MODIFIER";
 }
 
@@ -110,19 +120,36 @@ OPERATOR  "=>"|"==="|"=="|"as"/{LH}
   return "MODIFIER_PARAM";
 }
 
+<cmd>"*" {
+  return '*';
+}
+<cmd>"/" {
+  return '/';
+}
+<cmd>"-" {
+  return '-';
+}
+<cmd>"+" {
+  return '+';
+}
+<cmd>"^" {
+  return '^';
+}
 <cmd>"(" {
-  console.log("CMD|FUNCTION_OPEN");
-  return "FUNCTION_OPEN";
+  return '(';
+}
+<cmd>")" {
+  return ')';
+}
+
+<cmd>"(" {
+  // console.log("CMD|(");
+  return "(";
 }
 
 <cmd>")" {
-  console.log("CMD|FUNCTION_CLOSE");
-  return "FUNCTION_CLOSE";
-}
-
-<cmd>{INTEGER} {
-  console.log("CMD|INTEGER:%s", yytext);
-  return "INTEGER";
+  // console.log("CMD|)");
+  return ")";
 }
 
 <cmd>\s+ {
@@ -132,7 +159,7 @@ OPERATOR  "=>"|"==="|"=="|"as"/{LH}
 <cmd>{R} {
   this.popState();
   this.popState();
-  console.log("CMD|CLOSE");
+  // console.log("CMD|CLOSE|state:%s", this.topState());
   return "CLOSE";
 }
 

@@ -29,12 +29,14 @@ module.exports = function (grunt) {
           from: /R "}"/,
           to: 'R "<%= conf.rdelim %>"'
         }, {
-          from: "LH [=}\\s\\/.]",
+          from: "LH [}=\\s\\/.)(:\\|]",
           to: function () {
-            return ''
-              + 'LH [=' 
+            var result = ''
+              + 'LH [' 
               + grunt.config('conf').rdelim.slice(0, 1) 
-              + '\\s\\/.]';
+              + '=\\s\\/.)(:\\|]';
+
+            return result;
           }
         }]
       }
@@ -86,11 +88,7 @@ module.exports = function (grunt) {
     }
   });
 
-  this.registerTask('build', 'build project', [
-    'jison:smarty', 'wrap:parser'
-  ]);
-
-  this.registerTask('config', [
+  this.registerTask('build', [
     'replace:parser', 'jison:config', 'wrap:parser', 'clean:config'
   ]);
 

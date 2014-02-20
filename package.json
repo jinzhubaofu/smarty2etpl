@@ -1,6 +1,6 @@
 {
   "name": "smarty2etpl",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "transfer smarty to etpl",
   "main": "lib/index.js",
   "bin": "bin/smarty2etpl",

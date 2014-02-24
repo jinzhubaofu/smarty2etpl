@@ -52,6 +52,13 @@ INTEGER   \-?[0-9]+/{LH}
   return "OPEN";
 }
 
+<cmd>{R} {
+  this.popState();
+  this.popState();
+  // console.log("CMD|CLOSE|state:%s", this.topState());
+  return "CLOSE";
+}
+
 <cmd>{CMD} {
   // console.log("CMD|COMMAND|%s", yytext);
   return "CMD";
@@ -121,25 +128,28 @@ INTEGER   \-?[0-9]+/{LH}
 }
 
 <cmd>"*" {
-  return '*';
+  return "*";
 }
 <cmd>"/" {
-  return '/';
+  return "/";
 }
 <cmd>"-" {
-  return '-';
+  return "-";
 }
 <cmd>"+" {
-  return '+';
+  return "+";
+}
+<cmd>"%" {
+  return "%";
 }
 <cmd>"^" {
-  return '^';
+  return "^";
 }
 <cmd>"(" {
-  return '(';
+  return "(";
 }
 <cmd>")" {
-  return ')';
+  return ")";
 }
 
 <cmd>"(" {
@@ -154,13 +164,6 @@ INTEGER   \-?[0-9]+/{LH}
 
 <cmd>\s+ {
   // eat
-}
-
-<cmd>{R} {
-  this.popState();
-  this.popState();
-  // console.log("CMD|CLOSE|state:%s", this.topState());
-  return "CLOSE";
 }
 
 <s>[\s] {

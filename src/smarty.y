@@ -1,9 +1,9 @@
 %start root
 %ebnf
 
-%left '+' '-'
-%left '*' '/'
-%left '!'
+%left "+" "-"
+%left "*" "/" "%"
+%left "!"
 %left "==" "===" "!=" ">=" "<=" "<" ">"
 %left "&&"
 %left "||"
@@ -64,6 +64,7 @@ exp
   | exp '-' exp -> $1.concat([new yy.ConstantNode($2)]).concat($3)
   | exp '*' exp -> $1.concat([new yy.ConstantNode($2)]).concat($3)
   | exp '/' exp -> $1.concat([new yy.ConstantNode($2)]).concat($3)
+  | exp '%' exp -> $1.concat([new yy.ConstantNode($2)]).concat($3)
   | exp '||' exp -> $1.concat([new yy.ConstantNode($2)]).concat($3)
   | exp '&&' exp -> $1.concat([new yy.ConstantNode($2)]).concat($3)
   | exp '==' exp -> $1.concat([new yy.ConstantNode($2)]).concat($3)
